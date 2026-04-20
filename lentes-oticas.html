@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OptiLens — Identificador de Lentes Prontas</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --ink-soft: #2d2d4e;
+    --cream: #f5f0e8;
+    --warm: #ebe5d5;
+    --accent: #c8833a;
+    --accent-light: #e8a85a;
+    --teal: #2a7f8f;
+    --teal-light: #3fa0b3;
+    --success: #2d7a4f;
+    --warning: #b85c00;
+    --border: rgba(26,26,46,0.12);
+    --shadow: 0 4px 24px rgba(26,26,46,0.10);
+    --shadow-lg: 0 12px 48px rgba(26,26,46,0.16);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,131,58,0.18), transparent 70%);
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 10%;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(42,127,143,0.15), transparent 70%);
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 44px 32px 36px;
+    position: relative; z-index: 1;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 6px;
+  }
+  .logo-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-light));
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .logo-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    letter-spacing: -0.5px;
+    color: var(--cream);
+  }
+  .logo-name span { color: var(--accent-light); }
+  .header-tagline {
+    font-size: 0.92rem;
+    color: rgba(245,240,232,0.6);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 300;
+    margin-left: 62px;
+  }
+
+  /* MAIN */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+
+  /* SECTION LABELS */
+  .section-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  /* CARD */
+  .card {
+    background: white;
+    border-radius: 18px;
+    padding: 28px 30px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .card h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.25rem;
+    color: var(--ink);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h2 .icon {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .icon-blue { background: rgba(42,127,143,0.12); }
+  .icon-amber { background: rgba(200,131,58,0.12); }
+  .icon-green { background: rgba(45,122,79,0.12); }
+
+  /* GRID */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 14px; }
+
+  @media(max-width: 640px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; }
+  }
+  @media(max-width: 420px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  }
+
+  /* FORM ELEMENTS */
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+  .field input, .field select {
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--ink);
+    background: var(--cream);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(42,127,143,0.12);
+    background: white;
+  }
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231a1a2e' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 38px;
+    cursor: pointer;
+  }
+
+  /* DIVIDER */
+  .eye-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 4px 0 16px;
+    color: var(--ink-soft);
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+  .eye-divider::before, .eye-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .eye-tag {
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .eye-od { background: rgba(200,131,58,0.1); color: var(--accent); }
+  .eye-os { background: rgba(42,127,143,0.1); color: var(--teal); }
+
+  /* CHECKBOX PILLS */
+  .pill-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .pill-check {
+    display: none;
+  }
+  .pill-label {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    font-size: 0.83rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.18s;
+    user-select: none;
+    background: var(--cream);
+  }
+  .pill-check:checked + .pill-label {
+    background: var(--ink);
+    color: var(--cream);
+    border-color: var(--ink);
+  }
+
+  /* BUTTON */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 28px;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--ink);
+    color: var(--cream);
+  }
+  .btn-primary:hover {
+    background: var(--ink-soft);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(26,26,46,0.25);
+  }
+  .btn-teal {
+    background: var(--teal);
+    color: white;
+  }
+  .btn-teal:hover {
+    background: var(--teal-light);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(42,127,143,0.35);
+  }
+  .btn-outline {
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--border);
+  }
+  .btn-outline:hover {
+    background: var(--warm);
+    border-color: var(--ink);
+  }
+  .btn-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+  }
+
+  /* RESULTS */
+  #resultado { display: none; }
+  
+  .result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .result-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    color: var(--ink);
+  }
+  .result-subtitle {
+    font-size: 0.85rem;
+    color: rgba(26,26,46,0.5);
+    margin-top: 2px;
+  }
+
+  .eye-result {
+    margin-bottom: 20px;
+  }
+  .eye-result-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .eye-result-title.od { color: var(--accent); }
+  .eye-result-title.os { color: var(--teal); }
+
+  /* LENTE ENCONTRADA */
+  .lens-found {
+    background: linear-gradient(135deg, rgba(45,122,79,0.06), rgba(45,122,79,0.02));
+    border: 1.5px solid rgba(45,122,79,0.25);
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .lens-found-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--success);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+  .lens-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .lens-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .lens-spec-tag {
+    background: rgba(26,26,46,0.06);
+    color: var(--ink-soft);
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 8px;
+  }
+
+  /* BLOCO INDICADO */
+  .lens-block {
+    background: linear-gradient(135deg, rgba(200,131,58,0.08), rgba(200,131,58,0.02));
+    border: 1.5px solid rgba(200,131,58,0.3);
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .lens-block-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+  .block-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .block-desc {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+
+  /* RECEITA RESUMO */
+  .receita-summary {
+    background: var(--warm);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+  }
+  .receita-summary h4 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 12px;
+  }
+  .receita-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .receita-item { }
+  .receita-item dt {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(26,26,46,0.45);
+    margin-bottom: 2px;
+  }
+  .receita-item dd {
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  /* SEPARADOR */
+  .sep {
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0;
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 32px 20px;
+    color: rgba(26,26,46,0.4);
+  }
+  .empty-state svg { margin: 0 auto 12px; display: block; opacity: 0.4; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--ink);
+    color: var(--cream);
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    z-index: 9999;
+    pointer-events: none;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* PATIENT INFO */
+  .info-row { display: flex; flex-direction: column; gap: 16px; }
+
+  /* RESPONSIVE */
+  @media(max-width:600px) {
+    .header-inner { padding: 28px 18px 24px; }
+    .card { padding: 20px 18px; }
+    .btn-actions { gap: 8px; }
+    .btn { padding: 11px 18px; font-size: 0.88rem; }
+    .receita-grid { grid-template-columns: 1fr; }
+    .result-header { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">👁</div>
+      <div class="logo-name">Opti<span>Lens</span></div>
+    </div>
+    <p class="header-tagline">Identificador de Lentes Prontas · Gestão Ótica</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- DADOS DO PACIENTE -->
+  <div class="card">
+    <div class="section-label">Etapa 1</div>
+    <h2><span class="icon icon-blue">👤</span> Dados do Paciente</h2>
+    <div class="grid-2">
+      <div class="field">
+        <label>Nome completo</label>
+        <input type="text" id="nome" placeholder="Ex: Maria Silva">
+      </div>
+      <div class="field">
+        <label>Data da Consulta</label>
+        <input type="date" id="dataConsulta">
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:14px">
+      <div class="field">
+        <label>Oftalmologista / Optometrista</label>
+        <input type="text" id="medico" placeholder="Dr. João Souza">
+      </div>
+      <div class="field">
+        <label>Observações</label>
+        <input type="text" id="observacoes" placeholder="Opcional...">
+      </div>
+    </div>
+  </div>
+
+  <!-- RECEITA -->
+  <div class="card">
+    <div class="section-label">Etapa 2</div>
+    <h2><span class="icon icon-amber">📋</span> Receita Oftalmológica</h2>
+
+    <!-- OD -->
+    <div class="eye-divider"><span class="eye-tag eye-od">OD — Olho Direito</span></div>
+    <div class="grid-4">
+      <div class="field">
+        <label>Esférico</label>
+        <select id="od_esf">
+          <option value="">Selecione</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Cilíndrico</label>
+        <select id="od_cil">
+          <option value="">Selecione</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Eixo (°)</label>
+        <input type="number" id="od_eixo" placeholder="1–180" min="1" max="180">
+      </div>
+      <div class="field">
+        <label>Adição</label>
+        <select id="od_add">
+          <option value="">Nenhuma</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-3" style="margin-top:14px">
+      <div class="field">
+        <label>DNP (mm)</label>
+        <input type="number" id="od_dnp" placeholder="30–36" step="0.5">
+      </div>
+      <div class="field">
+        <label>Altura (mm)</label>
+        <input type="number" id="od_altura" placeholder="14–24">
+      </div>
+      <div class="field">
+        <label>Prism. (Δ)</label>
+        <input type="number" id="od_prisma" placeholder="0" step="0.5">
+      </div>
+    </div>
+
+    <!-- OS -->
+    <div class="eye-divider" style="margin-top:24px"><span class="eye-tag eye-os">OS — Olho Esquerdo</span></div>
+    <div class="grid-4">
+      <div class="field">
+        <label>Esférico</label>
+        <select id="os_esf">
+          <option value="">Selecione</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Cilíndrico</label>
+        <select id="os_cil">
+          <option value="">Selecione</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Eixo (°)</label>
+        <input type="number" id="os_eixo" placeholder="1–180" min="1" max="180">
+      </div>
+      <div class="field">
+        <label>Adição</label>
+        <select id="os_add">
+          <option value="">Nenhuma</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-3" style="margin-top:14px">
+      <div class="field">
+        <label>DNP (mm)</label>
+        <input type="number" id="os_dnp" placeholder="30–36" step="0.5">
+      </div>
+      <div class="field">
+        <label>Altura (mm)</label>
+        <input type="number" id="os_altura" placeholder="14–24">
+      </div>
+      <div class="field">
+        <label>Prism. (Δ)</label>
+        <input type="number" id="os_prisma" placeholder="0" step="0.5">
+      </div>
+    </div>
+  </div>
+
+  <!-- TIPO DE LENTE -->
+  <div class="card">
+    <div class="section-label">Etapa 3</div>
+    <h2><span class="icon icon-green">🔬</span> Tipo de Lente Desejada</h2>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Material</label>
+        <select id="material">
+          <option value="todos">Todos os materiais</option>
+          <option value="resina">Resina CR-39 (n 1.50)</option>
+          <option value="mid-index">Mid-Index (n 1.53 / 1.56)</option>
+          <option value="high-index">High-Index (n 1.60)</option>
+          <option value="super-high">Super High-Index (n 1.67 / 1.74)</option>
+          <option value="policarbonato">Policarbonato</option>
+          <option value="trivex">Trivex</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Desenho</label>
+        <select id="desenho">
+          <option value="todos">Todos os desenhos</option>
+          <option value="visao-simples">Visão Simples</option>
+          <option value="bifocal">Bifocal</option>
+          <option value="progressiva">Progressiva</option>
+          <option value="ocupacional">Ocupacional / Degressive</option>
+        </select>
+      </div>
+    </div>
+
+    <p class="section-label" style="margin-top:20px; margin-bottom:8px">Tratamentos / Coberturas</p>
+    <div class="pill-group">
+      <input type="checkbox" class="pill-check" id="t_anti" value="antirreflexo">
+      <label for="t_anti" class="pill-label">Antirreflexo</label>
+      <input type="checkbox" class="pill-check" id="t_blue" value="blue-cut">
+      <label for="t_blue" class="pill-label">Blue-Cut / Blueguard</label>
+      <input type="checkbox" class="pill-check" id="t_fotossens" value="fotossensivel">
+      <label for="t_fotossens" class="pill-label">Fotossensível</label>
+      <input type="checkbox" class="pill-check" id="t_uv" value="uv400">
+      <label for="t_uv" class="pill-label">UV 400</label>
+      <input type="checkbox" class="pill-check" id="t_esp" value="espelhada">
+      <label for="t_esp" class="pill-label">Espelhada</label>
+      <input type="checkbox" class="pill-check" id="t_polar" value="polarizada">
+      <label for="t_polar" class="pill-label">Polarizada</label>
+    </div>
+
+    <div class="btn-actions">
+      <button class="btn btn-primary" onclick="buscarLentes()">
+        🔍 Identificar Lentes
+      </button>
+      <button class="btn btn-outline" onclick="limparForm()">
+        ↺ Limpar
+      </button>
+    </div>
+  </div>
+
+  <!-- RESULTADO -->
+  <div id="resultado">
+    <div class="card">
+      <div class="result-header">
+        <div>
+          <div class="section-label">Resultado</div>
+          <div class="result-title">Lentes Compatíveis</div>
+          <div class="result-subtitle" id="result-date"></div>
+        </div>
+        <button class="btn btn-teal" onclick="gerarPDF()">
+          📄 Gerar PDF
+        </button>
+      </div>
+
+      <!-- Resumo receita -->
+      <div class="receita-summary">
+        <h4>Resumo da Receita</h4>
+        <div class="receita-grid">
+          <div class="receita-item">
+            <dt>Paciente</dt>
+            <dd id="r-nome">—</dd>
+          </div>
+          <div class="receita-item">
+            <dt>Consulta</dt>
+            <dd id="r-data">—</dd>
+          </div>
+          <div class="receita-item">
+            <dt>OD (E / C / Eixo)</dt>
+            <dd id="r-od">—</dd>
+          </div>
+          <div class="receita-item">
+            <dt>OS (E / C / Eixo)</dt>
+            <dd id="r-os">—</dd>
+          </div>
+          <div class="receita-item">
+            <dt>Adição OD / OS</dt>
+            <dd id="r-add">—</dd>
+          </div>
+          <div class="receita-item">
+            <dt>Material / Desenho</dt>
+            <dd id="r-tipo">—</dd>
+          </div>
+        </div>
+      </div>
+
+      <!-- OD result -->
+      <div class="eye-result">
+        <div class="eye-result-title od">👁 OD — Olho Direito</div>
+        <div id="result-od"></div>
+      </div>
+
+      <div class="sep"></div>
+
+      <!-- OS result -->
+      <div class="eye-result">
+        <div class="eye-result-title os">👁 OS — Olho Esquerdo</div>
+        <div id="result-os"></div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// =========================================================
+// CATÁLOGO DE LENTES PRONTAS
+// =========================================================
+const CATALOGO = [
+  // VISÃO SIMPLES - RESINA CR-39 n1.50
+  { id: 'VS-CR39-01', nome: 'Resina CR-39 Esf.', fabricante: 'Genérica', material: 'resina', desenho: 'visao-simples',
+    esf_min: -6.00, esf_max: 6.00, cil_min: 0.00, cil_max: -2.00,
+    add_min: null, add_max: null, indice: 1.50,
+    tratamentos: [], descricao: 'Lente esférica padrão em resina orgânica. Boa relação custo-benefício para graus baixos.' },
+  { id: 'VS-CR39-02', nome: 'Resina CR-39 Asf. Antirreflexo', fabricante: 'Genérica', material: 'resina', desenho: 'visao-simples',
+    esf_min: -4.00, esf_max: 4.00, cil_min: 0.00, cil_max: -1.50,
+    add_min: null, add_max: null, indice: 1.50,
+    tratamentos: ['antirreflexo'], descricao: 'Lente com tratamento antirreflexo multicamadas. Redução de reflexos e clareza visual aprimorada.' },
+  { id: 'VS-CR39-03', nome: 'Resina CR-39 Blue-Cut', fabricante: 'Genérica', material: 'resina', desenho: 'visao-simples',
+    esf_min: -4.00, esf_max: 4.00, cil_min: 0.00, cil_max: -2.00,
+    add_min: null, add_max: null, indice: 1.50,
+    tratamentos: ['antirreflexo','blue-cut'], descricao: 'Proteção contra luz azul digital. Indicada para usuários de telas por longas horas.' },
+
+  // MID-INDEX 1.56
+  { id: 'VS-156-01', nome: 'Mid-Index 1.56 Esf.', fabricante: 'Genérica', material: 'mid-index', desenho: 'visao-simples',
+    esf_min: -8.00, esf_max: 6.00, cil_min: 0.00, cil_max: -3.00,
+    add_min: null, add_max: null, indice: 1.56,
+    tratamentos: [], descricao: 'Lente de índice intermediário. Mais fina que CR-39 para graus moderados.' },
+  { id: 'VS-156-02', nome: 'Mid-Index 1.56 AR+Blue', fabricante: 'Genérica', material: 'mid-index', desenho: 'visao-simples',
+    esf_min: -8.00, esf_max: 6.00, cil_min: 0.00, cil_max: -2.50,
+    add_min: null, add_max: null, indice: 1.56,
+    tratamentos: ['antirreflexo','blue-cut','uv400'], descricao: 'Pacote completo: antirreflexo + corte de luz azul + UV400. Ideal para uso digital.' },
+
+  // HIGH-INDEX 1.60
+  { id: 'VS-160-01', nome: 'High-Index 1.60 Esf.', fabricante: 'Genérica', material: 'high-index', desenho: 'visao-simples',
+    esf_min: -12.00, esf_max: 8.00, cil_min: 0.00, cil_max: -4.00,
+    add_min: null, add_max: null, indice: 1.60,
+    tratamentos: [], descricao: 'Alta leveza e espessura reduzida. Indicada para graus elevados.' },
+  { id: 'VS-160-02', nome: 'High-Index 1.60 AR+UV', fabricante: 'Genérica', material: 'high-index', desenho: 'visao-simples',
+    esf_min: -12.00, esf_max: 8.00, cil_min: 0.00, cil_max: -4.00,
+    add_min: null, add_max: null, indice: 1.60,
+    tratamentos: ['antirreflexo','uv400'], descricao: 'Antirreflexo premium + proteção UV completa para alta performance visual.' },
+
+  // SUPER HIGH-INDEX 1.67
+  { id: 'VS-167-01', nome: 'Super High-Index 1.67', fabricante: 'Genérica', material: 'super-high', desenho: 'visao-simples',
+    esf_min: -20.00, esf_max: 10.00, cil_min: 0.00, cil_max: -6.00,
+    add_min: null, add_max: null, indice: 1.67,
+    tratamentos: ['antirreflexo','uv400'], descricao: 'Para graus muito elevados. Lente extremamente fina e leve.' },
+  { id: 'VS-174-01', nome: 'Super High-Index 1.74', fabricante: 'Genérica', material: 'super-high', desenho: 'visao-simples',
+    esf_min: -25.00, esf_max: 12.00, cil_min: 0.00, cil_max: -8.00,
+    add_min: null, add_max: null, indice: 1.74,
+    tratamentos: ['antirreflexo','uv400'], descricao: 'O mais alto índice disponível. Para casos de alta ametropia.' },
+
+  // POLICARBONATO
+  { id: 'VS-PC-01', nome: 'Policarbonato UV400', fabricante: 'Genérica', material: 'policarbonato', desenho: 'visao-simples',
+    esf_min: -10.00, esf_max: 8.00, cil_min: 0.00, cil_max: -4.00,
+    add_min: null, add_max: null, indice: 1.59,
+    tratamentos: ['antirreflexo','uv400'], descricao: 'Alta resistência ao impacto. Obrigatória para crianças e atividades esportivas.' },
+  { id: 'VS-PC-02', nome: 'Policarbonato Blue-Cut', fabricante: 'Genérica', material: 'policarbonato', desenho: 'visao-simples',
+    esf_min: -8.00, esf_max: 6.00, cil_min: 0.00, cil_max: -3.50,
+    add_min: null, add_max: null, indice: 1.59,
+    tratamentos: ['antirreflexo','blue-cut','uv400'], descricao: 'Policarbonato com corte de luz azul. Segurança + proteção digital.' },
+
+  // TRIVEX
+  { id: 'VS-TRX-01', nome: 'Trivex AR Premium', fabricante: 'Genérica', material: 'trivex', desenho: 'visao-simples',
+    esf_min: -9.00, esf_max: 7.00, cil_min: 0.00, cil_max: -3.50,
+    add_min: null, add_max: null, indice: 1.53,
+    tratamentos: ['antirreflexo','uv400'], descricao: 'Excelente qualidade óptica + resistência ao impacto. Superior ao policarbonato em nitidez.' },
+
+  // BIFOCAL
+  { id: 'BF-CR39-01', nome: 'Bifocal CR-39 FT-28', fabricante: 'Genérica', material: 'resina', desenho: 'bifocal',
+    esf_min: -6.00, esf_max: 6.00, cil_min: 0.00, cil_max: -2.00,
+    add_min: 1.00, add_max: 3.50, indice: 1.50,
+    tratamentos: [], descricao: 'Bifocal flat-top 28mm. Clássico e econômico para presbiopia com grau baixo a moderado.' },
+  { id: 'BF-156-01', nome: 'Bifocal 1.56 FT-28 AR', fabricante: 'Genérica', material: 'mid-index', desenho: 'bifocal',
+    esf_min: -8.00, esf_max: 6.00, cil_min: 0.00, cil_max: -2.50,
+    add_min: 1.00, add_max: 3.50, indice: 1.56,
+    tratamentos: ['antirreflexo'], descricao: 'Bifocal mid-index com antirreflexo. Mais fino que CR-39.' },
+
+  // PROGRESSIVA
+  { id: 'PG-156-01', nome: 'Progressiva 1.56 Standard', fabricante: 'Genérica', material: 'mid-index', desenho: 'progressiva',
+    esf_min: -6.00, esf_max: 4.00, cil_min: 0.00, cil_max: -2.00,
+    add_min: 0.75, add_max: 3.00, indice: 1.56,
+    tratamentos: ['antirreflexo'], descricao: 'Progressiva econômica para correção multifocal sem linha visível.' },
+  { id: 'PG-160-01', nome: 'Progressiva 1.60 Premium AR', fabricante: 'Genérica', material: 'high-index', desenho: 'progressiva',
+    esf_min: -10.00, esf_max: 6.00, cil_min: 0.00, cil_max: -3.00,
+    add_min: 0.75, add_max: 3.50, indice: 1.60,
+    tratamentos: ['antirreflexo','uv400'], descricao: 'Progressiva de alto desempenho. Amplos campos visuais e mínimas aberrações periféricas.' },
+  { id: 'PG-167-01', nome: 'Progressiva 1.67 Premium', fabricante: 'Genérica', material: 'super-high', desenho: 'progressiva',
+    esf_min: -16.00, esf_max: 8.00, cil_min: 0.00, cil_max: -5.00,
+    add_min: 0.75, add_max: 3.50, indice: 1.67,
+    tratamentos: ['antirreflexo','uv400'], descricao: 'Progressiva super high-index. Para graus altos com necessidade de leveza e estética.' },
+
+  // OCUPACIONAL
+  { id: 'OC-156-01', nome: 'Ocupacional / Degressive 1.56', fabricante: 'Genérica', material: 'mid-index', desenho: 'ocupacional',
+    esf_min: -4.00, esf_max: 4.00, cil_min: 0.00, cil_max: -2.00,
+    add_min: 0.50, add_max: 2.00, indice: 1.56,
+    tratamentos: ['antirreflexo','blue-cut'], descricao: 'Ideal para trabalho em escritório e uso de telas. Campo intermediário ampliado.' },
+
+  // FOTOSSENSÍVEIS
+  { id: 'FT-CR39-01', nome: 'Fotossensível CR-39 Transitions', fabricante: 'Transitions', material: 'resina', desenho: 'visao-simples',
+    esf_min: -6.00, esf_max: 4.00, cil_min: 0.00, cil_max: -2.00,
+    add_min: null, add_max: null, indice: 1.50,
+    tratamentos: ['fotossensivel','antirreflexo','uv400'], descricao: 'Escurece automaticamente sob luz UV. Conforto em ambientes internos e externos.' },
+  { id: 'FT-156-01', nome: 'Fotossensível 1.56 Transitions', fabricante: 'Transitions', material: 'mid-index', desenho: 'visao-simples',
+    esf_min: -8.00, esf_max: 6.00, cil_min: 0.00, cil_max: -3.00,
+    add_min: null, add_max: null, indice: 1.56,
+    tratamentos: ['fotossensivel','antirreflexo','uv400'], descricao: 'Fotossensível mid-index. Mais fina para graus intermediários.' },
+  { id: 'FT-160-01', nome: 'Fotossensível 1.60 Transitions', fabricante: 'Transitions', material: 'high-index', desenho: 'visao-simples',
+    esf_min: -12.00, esf_max: 8.00, cil_min: 0.00, cil_max: -4.00,
+    add_min: null, add_max: null, indice: 1.60,
+    tratamentos: ['fotossensivel','antirreflexo','uv400'], descricao: 'Fotossensível high-index. Leveza máxima com proteção solar inteligente.' },
+
+  // POLARIZADAS
+  { id: 'PL-PC-01', nome: 'Polarizada Policarbonato', fabricante: 'Genérica', material: 'policarbonato', desenho: 'visao-simples',
+    esf_min: -6.00, esf_max: 6.00, cil_min: 0.00, cil_max: -2.00,
+    add_min: null, add_max: null, indice: 1.59,
+    tratamentos: ['polarizada','uv400'], descricao: 'Elimina reflexos de superfícies horizontais. Ideal para pesca, direção e esportes.' },
+];
+
+// BLOCOS PARA QUANDO NÃO HÁ LENTE PRONTA
+const BLOCOS = [
+  { id: 'BL-CR39', nome: 'Bloco CR-39 n1.50 Bruto',
+    indicacao: { esf_min: -20, esf_max: 20, cil_min: -10, cil_max: 0 },
+    descricao: 'Bloco semifacetado em resina CR-39. Para encaminhamento ao laboratório de surfaçagem. Economia em graus dentro do range padrão.' },
+  { id: 'BL-156', nome: 'Bloco Mid-Index 1.56 Bruto',
+    indicacao: { esf_min: -20, esf_max: 20, cil_min: -10, cil_max: 0 },
+    descricao: 'Bloco semi-acabado 1.56. Melhor estética de espessura vs CR-39 para graus moderados.' },
+  { id: 'BL-160', nome: 'Bloco High-Index 1.60 Bruto',
+    indicacao: { esf_min: -20, esf_max: 20, cil_min: -10, cil_max: 0 },
+    descricao: 'Bloco semi-acabado 1.60. Indicado quando grau elevado exige lente mais fina e leve.' },
+  { id: 'BL-167', nome: 'Bloco Super High-Index 1.67 Bruto',
+    indicacao: { esf_min: -25, esf_max: 12, cil_min: -10, cil_max: 0 },
+    descricao: 'Para ametropias elevadas sem lente pronta disponível no estoque.' },
+  { id: 'BL-PC', nome: 'Bloco Policarbonato Bruto',
+    indicacao: { esf_min: -15, esf_max: 10, cil_min: -8, cil_max: 0 },
+    descricao: 'Bloco policarbonato para casos que demandam resistência ao impacto (crianças, esportes).' },
+  { id: 'BL-PG', nome: 'Bloco Progressivo Semi-Acabado',
+    indicacao: { esf_min: -12, esf_max: 8, cil_min: -6, cil_max: 0, add_min: 0.5, add_max: 4.0 },
+    descricao: 'Semifacetado para progressiva sob medida. Necessário quando o grau + adição não se enquadra em pronta-entrega.' },
+];
+
+// =========================================================
+// POPULATE SELECT OPTIONS
+// =========================================================
+function range(min, max, step) {
+  const r = [];
+  for (let v = min; v <= max; v = Math.round((v + step) * 100) / 100) r.push(v);
+  return r;
+}
+function formatVal(v) {
+  if (v === 0) return 'Plano (0,00)';
+  return (v > 0 ? '+' : '') + v.toFixed(2);
+}
+function populateSelects() {
+  const esfs = range(-25, 12, 0.25);
+  const cils = range(-8, 0, 0.25);
+  const adds = range(0.25, 4.00, 0.25);
+
+  ['od_esf','os_esf'].forEach(id => {
+    const sel = document.getElementById(id);
+    esfs.forEach(v => { const o = new Option(formatVal(v), v); sel.appendChild(o); });
+  });
+  ['od_cil','os_cil'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '<option value="">Sem cilíndrico</option>';
+    cils.forEach(v => { const o = new Option(formatVal(v), v); sel.appendChild(o); });
+  });
+  ['od_add','os_add'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '<option value="">Sem adição</option>';
+    adds.forEach(v => { const o = new Option('+' + v.toFixed(2), v); sel.appendChild(o); });
+  });
+}
+populateSelects();
+
+// Set today's date
+document.getElementById('dataConsulta').value = new Date().toISOString().slice(0,10);
+
+// =========================================================
+// BUSCAR LENTES
+// =========================================================
+let ultimaBusca = null;
+
+function buscarLentes() {
+  const esf_od = parseFloat(document.getElementById('od_esf').value);
+  const cil_od = parseFloat(document.getElementById('od_cil').value) || 0;
+  const esf_os = parseFloat(document.getElementById('os_esf').value);
+  const cil_os = parseFloat(document.getElementById('os_cil').value) || 0;
+
+  if (isNaN(esf_od) || isNaN(esf_os)) {
+    showToast('⚠️ Preencha o esférico de ambos os olhos!');
+    return;
+  }
+
+  const add_od = parseFloat(document.getElementById('od_add').value) || null;
+  const add_os = parseFloat(document.getElementById('os_add').value) || null;
+  const material = document.getElementById('material').value;
+  const desenho = document.getElementById('desenho').value;
+  const tratamentosSel = [...document.querySelectorAll('.pill-check:checked')].map(c => c.value);
+
+  const filtrar = (esf, cil, add) => {
+    return CATALOGO.filter(l => {
+      if (material !== 'todos' && l.material !== material) return false;
+      if (desenho !== 'todos' && l.desenho !== desenho) return false;
+      if (esf < l.esf_min || esf > l.esf_max) return false;
+      if (cil < l.cil_min) return false;
+      if (add !== null) {
+        if (l.add_min === null) return false;
+        if (add < l.add_min || add > l.add_max) return false;
+      } else {
+        if (l.add_min !== null) return false;
+      }
+      if (tratamentosSel.length > 0) {
+        const tem = tratamentosSel.every(t => l.tratamentos.includes(t));
+        if (!tem) return false;
+      }
+      return true;
+    });
+  };
+
+  const lentes_od = filtrar(esf_od, cil_od, add_od);
+  const lentes_os = filtrar(esf_os, cil_os, add_os);
+
+  ultimaBusca = { esf_od, cil_od, add_od, esf_os, cil_os, add_os, lentes_od, lentes_os, material, desenho, tratamentosSel };
+
+  renderResultado(ultimaBusca);
+}
+
+function sugerirBloco(esf, cil, add, materialPref) {
+  // Pick best fitting block
+  let pref = BLOCOS.find(b => {
+    const okEsf = esf >= b.indicacao.esf_min && esf <= b.indicacao.esf_max;
+    const okCil = cil >= b.indicacao.cil_min;
+    const okAdd = add === null ? true : (b.indicacao.add_min !== undefined ? add >= b.indicacao.add_min && add <= b.indicacao.add_max : true);
+    return okEsf && okCil && okAdd;
+  });
+  // Prefer material match
+  if (materialPref && materialPref !== 'todos') {
+    const materialMap = { 'resina': 'BL-CR39', 'mid-index': 'BL-156', 'high-index': 'BL-160', 'super-high': 'BL-167', 'policarbonato': 'BL-PC' };
+    const prefId = materialMap[materialPref];
+    if (prefId) {
+      const m = BLOCOS.find(b => b.id === prefId);
+      if (m && esf >= m.indicacao.esf_min && esf <= m.indicacao.esf_max && cil >= m.indicacao.cil_min) pref = m;
+    }
+  }
+  if (!pref) {
+    // Fallback: high index
+    if (Math.abs(esf) > 12 || Math.abs(cil) > 4) pref = BLOCOS.find(b => b.id === 'BL-167');
+    else if (Math.abs(esf) > 8) pref = BLOCOS.find(b => b.id === 'BL-160');
+    else pref = BLOCOS.find(b => b.id === 'BL-CR39');
+  }
+  return pref;
+}
+
+function renderLentes(lentes, esf, cil, add, material) {
+  if (lentes.length === 0) {
+    const bloco = sugerirBloco(esf, cil, add, material);
+    let html = `<div class="lens-block">
+      <div class="lens-block-badge">⚙️ Sem Pronta — Comprar Bloco</div>
+      <div class="block-name">${bloco ? bloco.nome : 'Bloco Semi-Acabado'}</div>
+      <div class="block-desc">${bloco ? bloco.descricao : 'Encaminhar para laboratório de surfaçagem.'}</div>
+      <div class="lens-specs">
+        <span class="lens-spec-tag">Esf: ${(esf >= 0 ? '+' : '') + esf.toFixed(2)}</span>
+        <span class="lens-spec-tag">Cil: ${cil ? cil.toFixed(2) : '0.00'}</span>
+        ${add ? `<span class="lens-spec-tag">Add: +${parseFloat(add).toFixed(2)}</span>` : ''}
+        ${bloco ? `<span class="lens-spec-tag">Ref: ${bloco.id}</span>` : ''}
+      </div>
+    </div>
+    <p style="font-size:0.78rem;color:rgba(26,26,46,0.5);margin-top:6px">
+      ℹ️ Nenhuma lente pronta cobre este grau com os filtros selecionados. O bloco acima deve ser enviado para surfaçagem.
+    </p>`;
+    return html;
+  }
+  return lentes.map(l => `
+    <div class="lens-found">
+      <div class="lens-found-badge">✓ Lente Pronta Disponível</div>
+      <div class="lens-name">${l.nome}</div>
+      <div style="font-size:0.83rem;color:var(--ink-soft);line-height:1.55;margin-bottom:10px">${l.descricao}</div>
+      <div class="lens-specs">
+        <span class="lens-spec-tag">Índice ${l.indice}</span>
+        <span class="lens-spec-tag">Esf: ${l.esf_min.toFixed(2)} a ${l.esf_max >= 0 ? '+' : ''}${l.esf_max.toFixed(2)}</span>
+        <span class="lens-spec-tag">Cil: até ${l.cil_min.toFixed(2)}</span>
+        ${l.add_min ? `<span class="lens-spec-tag">Add: ${l.add_min} a +${l.add_max}</span>` : ''}
+        ${l.tratamentos.map(t => `<span class="lens-spec-tag">${t}</span>`).join('')}
+        <span class="lens-spec-tag" style="background:rgba(42,127,143,0.08);color:var(--teal)">Ref: ${l.id}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderResultado(d) {
+  const nome = document.getElementById('nome').value || 'Não informado';
+  const data = document.getElementById('dataConsulta').value;
+  const medico = document.getElementById('medico').value;
+
+  document.getElementById('r-nome').textContent = nome;
+  document.getElementById('r-data').textContent = data ? new Date(data+'T12:00').toLocaleDateString('pt-BR') : '—';
+  document.getElementById('r-od').textContent =
+    `${(d.esf_od >= 0 ? '+' : '') + d.esf_od.toFixed(2)} / ${d.cil_od ? d.cil_od.toFixed(2) : '0.00'} / ${document.getElementById('od_eixo').value || '—'}°`;
+  document.getElementById('r-os').textContent =
+    `${(d.esf_os >= 0 ? '+' : '') + d.esf_os.toFixed(2)} / ${d.cil_os ? d.cil_os.toFixed(2) : '0.00'} / ${document.getElementById('os_eixo').value || '—'}°`;
+  document.getElementById('r-add').textContent =
+    `${d.add_od ? '+' + parseFloat(d.add_od).toFixed(2) : 'N/A'} / ${d.add_os ? '+' + parseFloat(d.add_os).toFixed(2) : 'N/A'}`;
+  document.getElementById('r-tipo').textContent =
+    `${document.getElementById('material').options[document.getElementById('material').selectedIndex].text} · ${document.getElementById('desenho').options[document.getElementById('desenho').selectedIndex].text}`;
+
+  document.getElementById('result-date').textContent =
+    `Gerado em ${new Date().toLocaleString('pt-BR')}${medico ? ' · ' + medico : ''}`;
+
+  document.getElementById('result-od').innerHTML =
+    renderLentes(d.lentes_od, d.esf_od, d.cil_od, d.add_od, d.material);
+  document.getElementById('result-os').innerHTML =
+    renderLentes(d.lentes_os, d.esf_os, d.cil_os, d.add_os, d.material);
+
+  const res = document.getElementById('resultado');
+  res.style.display = 'block';
+  res.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// =========================================================
+// GERAR PDF
+// =========================================================
+function gerarPDF() {
+  if (!ultimaBusca) { showToast('Faça uma busca primeiro!'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  const W = 210, ML = 18, MR = 18, TW = W - ML - MR;
+  let y = 0;
+
+  const cor = { ink: [26,26,46], teal: [42,127,143], accent: [200,131,58], cream: [245,240,232],
+                 warm: [235,229,213], green: [45,122,79], light: [100,100,120], border: [220,218,212] };
+
+  // HEADER
+  doc.setFillColor(...cor.ink);
+  doc.rect(0, 0, 210, 38, 'F');
+  doc.setFillColor(...cor.accent);
+  doc.circle(195, -5, 30, 'F');
+  doc.setFillColor(42, 127, 143, 0.3);
+  doc.circle(25, 50, 22, 'F');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(22);
+  doc.setTextColor(245, 240, 232);
+  doc.text('OptiLens', ML, 17);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(200, 195, 185);
+  doc.text('Identificador de Lentes Prontas · Relatório de Compatibilidade', ML, 24);
+
+  doc.setFontSize(8);
+  doc.setTextColor(160, 155, 145);
+  doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, ML, 31);
+  y = 48;
+
+  // PACIENTE
+  const nome = document.getElementById('nome').value || 'Não informado';
+  const dataConsulta = document.getElementById('dataConsulta').value;
+  const medico = document.getElementById('medico').value || 'Não informado';
+  const obs = document.getElementById('observacoes').value || '';
+
+  doc.setFillColor(...cor.warm);
+  doc.roundedRect(ML, y, TW, 28, 3, 3, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...cor.accent);
+  doc.text('DADOS DO PACIENTE', ML + 5, y + 7);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(...cor.ink);
+  doc.text(`Paciente: ${nome}`, ML + 5, y + 14);
+  doc.text(`Responsável: ${medico}`, ML + 5, y + 20);
+  doc.text(`Data: ${dataConsulta ? new Date(dataConsulta + 'T12:00').toLocaleDateString('pt-BR') : '—'}`, ML + TW/2, y + 14);
+  if (obs) doc.text(`Obs: ${obs}`, ML + TW/2, y + 20);
+  y += 34;
+
+  // RECEITA
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...cor.teal);
+  doc.text('RECEITA OFTALMOLÓGICA', ML, y + 5);
+  y += 9;
+
+  const tblHeaders = ['Olho', 'Esférico', 'Cilíndrico', 'Eixo', 'Adição', 'DNP', 'Prisma'];
+  const tblWidths = [18, 26, 26, 18, 18, 18, 18];
+  const tblData = [
+    ['OD',
+     (ultimaBusca.esf_od >= 0 ? '+' : '') + ultimaBusca.esf_od.toFixed(2),
+     ultimaBusca.cil_od ? ultimaBusca.cil_od.toFixed(2) : '0.00',
+     document.getElementById('od_eixo').value || '—',
+     ultimaBusca.add_od ? '+' + parseFloat(ultimaBusca.add_od).toFixed(2) : '—',
+     document.getElementById('od_dnp').value || '—',
+     document.getElementById('od_prisma').value || '0'],
+    ['OS',
+     (ultimaBusca.esf_os >= 0 ? '+' : '') + ultimaBusca.esf_os.toFixed(2),
+     ultimaBusca.cil_os ? ultimaBusca.cil_os.toFixed(2) : '0.00',
+     document.getElementById('os_eixo').value || '—',
+     ultimaBusca.add_os ? '+' + parseFloat(ultimaBusca.add_os).toFixed(2) : '—',
+     document.getElementById('os_dnp').value || '—',
+     document.getElementById('os_prisma').value || '0'],
+  ];
+
+  // Header
+  doc.setFillColor(...cor.ink);
+  doc.rect(ML, y, TW, 7, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(245, 240, 232);
+  let xc = ML;
+  tblHeaders.forEach((h, i) => { doc.text(h, xc + 2, y + 5); xc += tblWidths[i]; });
+  y += 7;
+
+  tblData.forEach((row, ri) => {
+    doc.setFillColor(ri % 2 === 0 ? 250 : 242, ri % 2 === 0 ? 249 : 246, ri % 2 === 0 ? 248 : 244);
+    doc.rect(ML, y, TW, 7, 'F');
+    doc.setFont(ri === 0 ? 'helvetica' : 'helvetica', ri === 0 ? 'bold' : 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(...(ri === 0 ? cor.accent : cor.teal));
+    xc = ML;
+    doc.text(row[0], xc + 2, y + 5); xc += tblWidths[0];
+    doc.setTextColor(...cor.ink);
+    doc.setFont('helvetica', 'normal');
+    for (let i = 1; i < row.length; i++) {
+      doc.text(row[i], xc + 2, y + 5);
+      xc += tblWidths[i];
+    }
+    y += 7;
+  });
+  y += 6;
+
+  // Tratamentos solicitados
+  const tratamentos = ultimaBusca.tratamentosSel;
+  if (tratamentos.length > 0) {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...cor.ink);
+    doc.text('Tratamentos solicitados: ', ML, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...cor.light);
+    doc.text(tratamentos.join(', '), ML + 42, y);
+    y += 7;
+  }
+
+  // FUNÇÃO renderizar resultado de um olho no PDF
+  const renderOlhoPDF = (label, esf, cil, add, lentes, material, cor_label) => {
+    y += 2;
+    doc.setFillColor(...cor_label);
+    doc.rect(ML, y, TW, 6, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(255, 255, 255);
+    doc.text(label, ML + 4, y + 4.2);
+    y += 9;
+
+    if (lentes.length === 0) {
+      const bloco = sugerirBloco(esf, cil, add, material);
+      doc.setFillColor(255, 247, 235);
+      doc.roundedRect(ML, y, TW, bloco ? 24 : 16, 2, 2, 'F');
+      doc.setDrawColor(...cor.accent);
+      doc.roundedRect(ML, y, TW, bloco ? 24 : 16, 2, 2, 'S');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(...cor.accent);
+      doc.text('⚙ COMPRAR BLOCO — Sem lente pronta para este grau', ML + 4, y + 7);
+      if (bloco) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8.5);
+        doc.setTextColor(...cor.ink);
+        doc.text(bloco.nome, ML + 4, y + 14);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7.5);
+        doc.setTextColor(...cor.light);
+        const linhas = doc.splitTextToSize(bloco.descricao, TW - 8);
+        doc.text(linhas.slice(0, 1), ML + 4, y + 20);
+      }
+      y += bloco ? 27 : 19;
+    } else {
+      lentes.forEach(l => {
+        const h = 28;
+        if (y + h > 270) { doc.addPage(); y = 20; }
+        doc.setFillColor(240, 248, 243);
+        doc.roundedRect(ML, y, TW, h, 2, 2, 'F');
+        doc.setDrawColor(...cor.green);
+        doc.roundedRect(ML, y, TW, h, 2, 2, 'S');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7.5);
+        doc.setTextColor(...cor.green);
+        doc.text('✓ LENTE PRONTA DISPONÍVEL', ML + 4, y + 7);
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9.5);
+        doc.setTextColor(...cor.ink);
+        doc.text(l.nome, ML + 4, y + 14);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7.5);
+        doc.setTextColor(...cor.light);
+        const linhas = doc.splitTextToSize(l.descricao, TW - 8);
+        doc.text(linhas.slice(0, 1), ML + 4, y + 20);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7);
+        doc.setTextColor(...cor.light);
+        const specStr = `Índice ${l.indice}  |  Esf: ${l.esf_min.toFixed(2)} a ${l.esf_max >= 0 ? '+' : ''}${l.esf_max.toFixed(2)}  |  Cil: até ${l.cil_min.toFixed(2)}  |  Ref: ${l.id}`;
+        doc.text(specStr, ML + 4, y + 26);
+        y += h + 4;
+      });
+    }
+    y += 4;
+  };
+
+  // TITULO RESULTADOS
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.setTextColor(...cor.teal);
+  doc.text('LENTES COMPATÍVEIS', ML, y);
+  y += 5;
+
+  renderOlhoPDF('OD — OLHO DIREITO', ultimaBusca.esf_od, ultimaBusca.cil_od, ultimaBusca.add_od, ultimaBusca.lentes_od, ultimaBusca.material, cor.accent);
+  renderOlhoPDF('OS — OLHO ESQUERDO', ultimaBusca.esf_os, ultimaBusca.cil_os, ultimaBusca.add_os, ultimaBusca.lentes_os, ultimaBusca.material, cor.teal);
+
+  // RODAPÉ
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setDrawColor(...cor.border);
+    doc.line(ML, 285, W - MR, 285);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(...cor.light);
+    doc.text('OptiLens · Sistema de Identificação de Lentes', ML, 290);
+    doc.text(`Página ${i} de ${pageCount}`, W - MR, 290, { align: 'right' });
+  }
+
+  const nomeArq = `optilens_${(nome || 'paciente').toLowerCase().replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`;
+  doc.save(nomeArq);
+  showToast('✅ PDF gerado com sucesso!');
+}
+
+// =========================================================
+// LIMPAR
+// =========================================================
+function limparForm() {
+  ['nome','medico','observacoes','od_eixo','od_dnp','od_altura','od_prisma',
+   'os_eixo','os_dnp','os_altura','os_prisma'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  ['od_esf','od_cil','od_add','os_esf','os_cil','os_add'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('material').value = 'todos';
+  document.getElementById('desenho').value = 'todos';
+  document.querySelectorAll('.pill-check').forEach(c => c.checked = false);
+  document.getElementById('resultado').style.display = 'none';
+  document.getElementById('dataConsulta').value = new Date().toISOString().slice(0,10);
+  ultimaBusca = null;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// =========================================================
+// TOAST
+// =========================================================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
